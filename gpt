@@ -1,0 +1,24 @@
+import gradio as gr
+import ollama
+with open('travel.csv', 'r', encoding='utf-8') as f:
+    travel_data_string = f.read()
+SYSTEM_PROMPT = f"""
+You are a helpful AI travel assistant.
+You must give travel recommendations based based on the following data.
+When you recommend a travel, explain why based on the data.
+You can use external knowledge if it is relevant to the content asked. If the answer is not related this data,
+say "I'm sorry, I don't have that information."
+{travel_data_string}"""
+def travel_chat(message, history):
+    messages = [{'role': 'system', 'content': SYSTEM_PROMPT},{'role': 'user', 'content': message}]
+    response = ollama.chat(model='qwen2.5:0.5b', messages=messages) 
+    return response['message']['content']
+gr.ChatInterface(fn=travel_chat, title="AI Travel Assistant ").launch()
+
+
+
+import gradio as gr, ollama
+def blog(topic, words):
+    p = f"Write a {words} word blog about {topic}."
+    return ollama.chat(model="qwen2.5:0.5b", messages=[{"role":"user","content":p}])["message"]["content"]
+gr.Interface(blog, ["text", "number"], "text").launch()
